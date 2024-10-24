@@ -29,13 +29,13 @@ if __name__ == '__main__':
 
     model = Network()  # 模型本身，它就是我们设计的神经网络
     optimizer = optim.Adam(model.parameters())  # 优化模型中的参数
-    criterion = nn.CrossEntropyLoss()  # 分类问题，使用交叉熵损失误差
+    criterion = nn.CrossEntropyLoss()  # 分类问题，使用交叉祯损失误应
 
     # 初始化存储训练过程的损失和准确率
     losses = []
     accuracy_list = []
 
-    epochs = 10;
+    epochs = 3;
     # 进入模型的迭代循环
     for epoch in range(epochs):  # 外层循环，代表了整个训练数据集的遍历次数
         correct = 0
@@ -48,9 +48,9 @@ if __name__ == '__main__':
             loss = criterion(output, label)  # 2.计算output和标签label之间的损失loss
 
             # 反向传播
-            loss.backward()  # 3.使用backward计算梯度
+            loss.backward()  # 3.使用backward计算渐度
             optimizer.step()  # 4.使用optimizer.step更新参数
-            optimizer.zero_grad()  # 5.将梯度清零
+            optimizer.zero_grad()  # 5.将渐度清零
 
             # 统计损失
             losses.append(loss.item())
@@ -92,9 +92,10 @@ if __name__ == '__main__':
     plt.legend()
     plt.show()
 
-    # 计算并显示混淆矩阵
+    # 计算并显示混沌矩阵
     all_labels = []
     all_predictions = []
+    all_images = []  # 存储所有图像
 
     # 遍历训练集来获取所有预测值和真实标签
     for data, label in train_loader:
@@ -102,13 +103,33 @@ if __name__ == '__main__':
         _, predicted = torch.max(output, 1)
         all_labels.extend(label.cpu().numpy())
         all_predictions.extend(predicted.cpu().numpy())
+        all_images.extend(data.cpu().numpy())  # 将图像数据存储到列表中
 
-    # 计算混淆矩阵
+    # 计算混沌矩阵
     cm = confusion_matrix(all_labels, all_predictions)
     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=train_dataset.classes)
 
-    # 可视化混淆矩阵
+    # 可视化混沌矩阵
     plt.figure(figsize=(10, 10))
     disp.plot(cmap=plt.cm.Blues)
     plt.title('Confusion Matrix')
+    plt.show()
+
+    # 识别错误分类的图像
+    errors = []
+    for i in range(len(all_labels)):
+        if all_labels[i] != all_predictions[i]:
+            errors.append((all_images[i], all_labels[i], all_predictions[i]))
+
+    # 可视化错误图像
+    num_errors_to_show = 10  # 可选择显示的错误图像数量
+    plt.figure(figsize=(15, 10))
+    for i in range(min(num_errors_to_show, len(errors))):
+        img, true_label, pred_label = errors[i]
+        plt.subplot(2, 5, i + 1)
+        plt.imshow(img[0], cmap='gray')  # img[0] 是单通道图像
+        plt.title(f'True: {true_label}, Pred: {pred_label}')
+        plt.axis('off')
+
+    plt.suptitle('Misclassified Images', fontsize=16)
     plt.show()
