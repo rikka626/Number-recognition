@@ -35,7 +35,7 @@ if __name__ == '__main__':
     losses = []
     accuracy_list = []
 
-    epochs = 3;
+    epochs = 10;
     # 进入模型的迭代循环
     for epoch in range(epochs):  # 外层循环，代表了整个训练数据集的遍历次数
         correct = 0
